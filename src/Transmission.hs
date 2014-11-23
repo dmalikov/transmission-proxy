@@ -1,4 +1,9 @@
 {-# LANGUAGE OverloadedStrings, ScopedTypeVariables #-}
+module Transmission
+  ( send
+  , Config(..)
+  ) where
+
 
 import           Control.Applicative
 import           Control.Exception
@@ -16,47 +21,33 @@ import           System.FilePath.Find
 import           System.FilePath.Posix
 import           System.Process
 
-download_dir = "/volume1/homes/transmission/"
-host = "192.168.1.43"
+-- | Some transmission-remote arguments
+data Config = Config
+  { host :: String                -- IP or hostname of a server where transmission-remote works, TODO ip address type?
+  , downloadDirPrefix :: FilePath -- first part of `--download-dir` argument, second is based on the torrent tracker
+  }
 
-base_dir = "/home/m/downloads/torrents"
-new_dir = base_dir </> "new"
-failed_dir = base_dir </> "failed"
-done_dir = base_dir </> "done"
-
-main :: IO ()
-main = do
-  torrents <- find always (fileType ==? RegularFile &&? extension ==? ".torrent") new_dir
-  forM_ torrents $ \torrent -> do
-    BSC.putStr $ BSC.pack $ "processing " ++ torrent ++ " :"
-    result <- process torrent
-    BSC.putStrLn $ BSC.pack $ show result
-    case result of
-      True   -> moveTo done_dir torrent
-      False  -> moveTo failed_dir torrent
- where
-  moveTo :: FilePath -> FilePath -> IO ()
-  moveTo dir torrent = renameFile torrent (dir </> (takeFileName torrent))
-
-process :: FilePath -> IO Bool
-process torrentFile = do
-  torrent <- BS.readFile torrentFile
+send :: Config -> FilePath -> IO Bool
+send (Config host downloadDirPrefix) torrentFilePath = do
+  torrent <- BS.readFile torrentFilePath
   case view tAnnounce <$> decode torrent of
     Left e -> do
       BSC.putStr $ BSC.pack e
       return False
-    Right uri -> do
+    Right uri ->
       case trackerSuffix =<< uriRegName <$> (uriAuthority =<< parseURI (BSC.unpack uri)) of
-        Just s -> do
+        Just s ->
           handle (\(SomeException _) -> return False) $ do
             callProcess "transmission-remote"
               [ host
-              , "--add",  torrentFile
-              , "--download-dir", download_dir ++ s
+              , "--add",  torrentFilePath
+              , "--download-dir", downloadDirPrefix ++ s
               ]
             return True
         Nothing -> return True
 
+-- TODO read from config
+-- TODO from Torrent itself, not from a string
 trackerSuffix :: String -> Maybe String
 trackerSuffix s = case s of
   "please.passthepopcorn.me" -> Just "ptp"

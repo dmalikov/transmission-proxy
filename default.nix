@@ -1,0 +1,15 @@
+{ haskellPackages ? (import <nixpkgs>).haskellPackages }:
+
+haskellPackages.cabal.mkDerivation (self: {
+  pname = "transmission-servant";
+  version = "0.1.0.0";
+  src = builtins.filterSource (_: type: type != "unknown") ./.;
+  isLibrary = false;
+  isExecutable = true;
+  buildDepends = with haskellPackages; [ bencoding hstorrent filemanip filepath lens networkUri ];
+  meta = {
+    description = "Script watching given directory for a torrents and sending them to remote transmission client";
+    license = self.stdenv.lib.licenses.mit;
+    platforms = self.ghc.meta.platforms;
+  };
+})
