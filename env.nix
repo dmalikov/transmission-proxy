@@ -1,13 +1,13 @@
 let
   pkgs = import <nixpkgs> {};
-  env = pkgs.haskellPackages.ghcWithPackagesOld (hsPkgs: ( with hsPkgs; [
+  env = pkgs.haskellPackages.ghcWithPackagesOld (self: ( with self; [
     hlint
     hdevtools
     doctest ] ++
-    (hsPkgs.callPackage ./. { haskellPackages = hsPkgs; }).nativeBuildInputs));
+    (self.callPackage ./. { haskellPackages = pkgs.myHaskellPackages; }).nativeBuildInputs));
 in
   pkgs.myEnvFun {
-    name = "transmission-watcher";
+    name = "transmission-servant";
     shell = "/bin/zsh";
     buildInputs = [ pkgs.haskellPackages.cabalInstall env ];
     extraCmds = ''

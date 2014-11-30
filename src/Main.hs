@@ -16,7 +16,7 @@ import           System.FilePath.Find
 import           System.FilePath.Posix
 import           System.Process
 
-import Transmission
+import           Transmission
 
 config :: Config
 config = Config
