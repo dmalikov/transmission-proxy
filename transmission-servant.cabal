@@ -1,6 +1,6 @@
 name:                transmission-servant
 version:             0.1.0.0
-synopsis:            Script watching given directory for a torrents and sending them to remote transmission client
+synopsis:            Sending torrents to the remote transmission client
 license:             MIT
 license-file:        LICENSE
 author:              Dmitry Malikov
@@ -9,14 +9,23 @@ category:            System
 build-type:          Simple
 extra-source-files:  README
 cabal-version:       >= 1.10
+description:         Script serving torrents from a given directory and sending them to remote transmission client
+source-repository head
+  type:     git
+  location: Private
 
 executable transmission-servant
   main-is:             Main.hs
   other-extensions:    OverloadedStrings, ScopedTypeVariables
+  other-modules:
+    Config
+    Servant
+    Transmission
   build-depends:
       base        >= 4.7 && < 4.8
     , bencoding
     , bytestring
+    , containers
     , directory
     , filemanip
     , filepath
@@ -26,3 +35,5 @@ executable transmission-servant
     , process
   hs-source-dirs:       src
   default-language:    Haskell2010
+  ghc-options:
+    -Wall
