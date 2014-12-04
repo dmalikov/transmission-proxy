@@ -1,5 +1,7 @@
 { haskellPackages ? (import <nixpkgs>).haskellPackages }:
 
+let hstorrent = import ./hstorrent.nix {}; in
+
 haskellPackages.cabal.mkDerivation (self: {
   pname = "transmission-servant";
   version = "0.1.0.0";
