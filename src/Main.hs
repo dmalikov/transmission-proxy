@@ -4,7 +4,7 @@ import           Config
 import           Servant
 
 main :: IO ()
-main = serve $
+main = startServing $
   Config "/home/m/downloads/torrents/" $
   TransmissionConfig "192.168.1.43" "/volume1/homes/transmission/" $ Map.fromList
     [ ("please.passthepopcorn.me", "ptp")

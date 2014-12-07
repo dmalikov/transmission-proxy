@@ -16,7 +16,6 @@ import           System.Process
 
 import           Config
 
-
 -- | Send request with given torrent to remove transmission client, return Maybe error
 send :: TransmissionConfig -> FilePath -> IO (Maybe BSC.ByteString)
 send (TransmissionConfig host downloadDirPrefix organizer) torrentFilePath = do
