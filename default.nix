@@ -1,4 +1,4 @@
-{ haskellPackages ? (import <nixpkgs>).haskellPackages }:
+{ haskellPackages ? (import <nixpkgs> {}).haskellPackages }:
 
 let hstorrent = import ./hstorrent.nix {}; in
 
