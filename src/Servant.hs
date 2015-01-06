@@ -15,6 +15,29 @@ import           System.FSNotify
 import           Config
 import           Transmission
 
+-- | Check given directory for a unserved torrents and start watching it
+startServing :: Config -> IO ()
+startServing config@(Config baseDir _) = do
+  check baseDir
+  torrents <- find (depth ==? 0) (fileType ==? RegularFile &&? extension ==? ".torrent") baseDir
+  BSC.putStrLn $ BSC.concat
+    [ "Found "
+    , BSC.pack $ show $ length torrents
+    , " torrents"
+    ]
+  forM_ torrents $ serve config
+  withManager $ \mgr -> do
+    _ <- watchDir
+      mgr
+      (FPCOS.decodeString baseDir)
+      (isAdded `and` isTorrent)
+      (\event -> do
+        print event
+        serve config $ FPCOS.encodeString $ eventPath event)
+    forever $ threadDelay maxBound
+
+-- bunch of local helpers
+
 isAdded :: ActionPredicate
 isAdded (Added _ _) = True
 isAdded          _  = False
@@ -29,29 +52,16 @@ failedDir, doneDir :: FilePath -> FilePath
 failedDir baseDir = baseDir </> "failed"
 doneDir baseDir = baseDir </> "done"
 
-startServing :: Config -> IO ()
-startServing config@(Config baseDir _) = do
-  check baseDir
-  torrents <- find (depth ==? 0) (fileType ==? RegularFile &&? extension ==? ".torrent") baseDir
-  forM_ torrents $ serve config
-  withManager $ \mgr -> do
-    _ <- watchDir
-      mgr
-      (FPCOS.decodeString baseDir)
-      (isAdded `and` isTorrent)
-      (\event -> do
-        print event
-        serve config $ FPCOS.encodeString $ eventPath event)
-    forever $ threadDelay maxBound
-
 serve :: Config -> FilePath -> IO ()
 serve (Config baseDir transmissionConfig) torrent = do
+    let filename = BSC.pack $ takeFileName torrent
     torrentAccepted <- send transmissionConfig torrent
     case torrentAccepted of
       Just e -> do
-        BSC.putStrLn $ BSC.concat [ BSC.pack $ takeFileName torrent , " moved to failed dir (" , e , ")" ]
+        BSC.putStrLn $ BSC.concat [ filename, " failed (", e, ")" ]
         moveTo (failedDir baseDir) torrent
-      Nothing ->
+      Nothing -> do
+        BSC.putStrLn $ BSC.concat [ filename, " done" ]
         moveTo (doneDir baseDir) torrent
 
 moveTo :: FilePath -> FilePath -> IO ()
