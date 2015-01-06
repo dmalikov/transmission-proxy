@@ -26,7 +26,11 @@ startServing config@(Config baseDir _) = do
     , " torrents"
     ]
   forM_ torrents $ serve config
-  withManager $ \mgr -> do
+  withManagerConf WatchConfig { confPollInterval = 1000000
+                              , confDebounce = DebounceDefault
+                              , confUsePolling = False
+                              }
+                  $ \mgr -> do
     _ <- watchDir
       mgr
       (FPCOS.decodeString baseDir)
