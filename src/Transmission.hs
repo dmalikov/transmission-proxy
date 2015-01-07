@@ -10,6 +10,7 @@ import           Data.BEncode
 import qualified Data.ByteString                 as BS
 import qualified Data.ByteString.Char8           as BSC
 import qualified Data.Map                        as Map
+import           Data.Maybe                      (fromMaybe)
 import           Network.HsTorrent.TorrentParser
 import           Network.URI
 import           System.Process
@@ -22,14 +23,12 @@ send (TransmissionConfig host downloadDirPrefix organizer) torrentFilePath = do
   torrent <- BS.readFile torrentFilePath
   case view tAnnounce <$> decode torrent of
     Left e -> return $ Just $ BSC.pack e
-    Right uri ->
-      case flip Map.lookup organizer =<< uriRegName <$> (uriAuthority =<< parseURI (BSC.unpack uri)) of
-        Just s ->
-          handle (\(SomeException e) -> return $ Just $ BSC.pack $ show e) $ do
-            callProcess "transmission-remote"
-              [ host
-              , "--add",  torrentFilePath
-              , "--download-dir", downloadDirPrefix ++ s
-              ]
-            return Nothing
-        Nothing -> return $ Just $ "no such tracker " `BSC.append` uri
+    Right uri -> do
+      let dir = fromMaybe "misc" $ flip Map.lookup organizer =<< uriRegName <$> (uriAuthority =<< parseURI (BSC.unpack uri))
+      handle (\(SomeException e) -> return $ Just $ BSC.pack $ show e) $ do
+        callProcess "transmission-remote"
+          [ host
+          , "--add",  torrentFilePath
+          , "--download-dir", downloadDirPrefix ++ dir
+          ]
+        return Nothing
