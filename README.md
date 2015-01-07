@@ -29,7 +29,7 @@ Create a `~/.servantrc` configuration file like:
 
 Install and run it via `cabal install && transmission-servant`.
 
-Better approach is to use isolated and clean`nix-shell`:
+Better approach is to use isolated and clean `nix-shell`:
 ```
 $> nix-shell -p '(haskellPackages.callPackage ./default.nix { haskellPackages = haskellPackages; })' --command 'transmission-servant'
 ```
