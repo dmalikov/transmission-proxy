@@ -4,7 +4,7 @@ let
     hlint
     hdevtools
     doctest ] ++
-    (self.callPackage ./. { haskellPackages = pkgs.myHaskellPackages; }).nativeBuildInputs));
+    (self.callPackage ./. { haskellPackages = pkgs.haskellPackages; }).nativeBuildInputs));
 in
   pkgs.myEnvFun {
     name = "transmission-servant";
