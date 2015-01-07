@@ -8,7 +8,7 @@ haskellPackages.cabal.mkDerivation (self: {
   src = builtins.filterSource (_: type: type != "unknown") ./.;
   isLibrary = false;
   isExecutable = true;
-  buildDepends = with haskellPackages; [ bencoding hstorrent filemanip filepath fsnotify lens networkUri systemFilepath ];
+  buildDepends = with haskellPackages; [ aeson bencoding hstorrent filemanip filepath fsnotify lens networkUri systemFilepath ];
   meta = {
     description = "Script watching given directory for a torrents and sending them to remote transmission client";
     license = self.stdenv.lib.licenses.mit;
