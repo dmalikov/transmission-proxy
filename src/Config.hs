@@ -1,50 +1,47 @@
+{-# LANGUAGE LambdaCase        #-}
 {-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE TemplateHaskell   #-}
 module Config
   ( readConfig
-  , Config(..)
-  , TransmissionConfig(..)
+  , Config(..), Credentials(..), TransmissionConfig(..)
   ) where
 
-import           Control.Applicative
 import           Control.Monad
 import           Data.Aeson
+import           Data.Aeson.TH
 import qualified Data.ByteString.Lazy.Char8 as BSC
 import           Data.Map
-import           System.Directory           (getHomeDirectory)
+import           System.Directory           (doesFileExist, getHomeDirectory)
 import           System.FilePath            ((</>))
 
 
 -- | Servant configuration
 data Config = Config
-  { _baseDir            :: FilePath -- directory with torrents servant will serve
-  , _transmissionConfig :: TransmissionConfig -- transmission configuration
-  } deriving Show
+  { baseDir      :: FilePath -- directory with torrents servant will serve
+  , transmission :: TransmissionConfig -- transmission configuration
+  } deriving (Eq, Show)
 
 -- | Some transmission-remote arguments
 data TransmissionConfig = TransmissionConfig
-  { _host              :: String -- IP or hostname of a server where transmission-remote works
-  , _downloadDirPrefix :: FilePath -- first part of `--download-dir` argument, second is based on the torrent tracker
-  , _trackers          :: Map String String -- mapping from a tracker name to a directory name
-  } deriving Show
+  { host              :: String -- IP or hostname of a server where transmission-remote works
+  , downloadDirPrefix :: FilePath -- first part of `--download-dir` argument, second is based on the torrent tracker
+  , trackers          :: Map String String -- mapping from a tracker name to a directory name
+  , auth              :: Maybe Credentials -- credential used for transmission-remote session
+  } deriving (Eq, Show)
 
-instance FromJSON Config where
-  parseJSON (Object v) = Config <$>
-    v .: "baseDir" <*>
-    v .: "transmission"
-  parseJSON _ = mzero
+data Credentials = Credentials
+  { username :: String
+  , password :: String
+  } deriving (Eq, Show)
 
-instance FromJSON TransmissionConfig where
-  parseJSON (Object v) = TransmissionConfig <$>
-    v .: "host" <*>
-    v .: "downloadDirPrefix" <*>
-    v .: "trackers"
-  parseJSON _ = mzero
+$(deriveJSON defaultOptions ''Config)
+$(deriveJSON defaultOptions ''TransmissionConfig)
+$(deriveJSON defaultOptions ''Credentials)
 
 readConfig :: IO Config
 readConfig = do
-  hd <- getHomeDirectory
-  maybeConfig <- decode <$> BSC.readFile (hd </> ".servantrc")
-  case maybeConfig of
+  configFilePath <- (</> ".servantrc") <$> getHomeDirectory
+  doesFileExist configFilePath >>= \exist -> unless exist $ error $ configFilePath ++ ": No such file"
+  decode <$> BSC.readFile configFilePath >>= \case
     Just config -> return config
-    Nothing -> error "Error: cannot find a config file ~/.servantrc"
-
+    Nothing -> error $ "Error: cannot parse config file " ++ configFilePath

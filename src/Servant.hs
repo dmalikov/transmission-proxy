@@ -15,11 +15,12 @@ import           System.FSNotify
 import           Config
 import           Transmission
 
--- | Check given directory for a unserved torrents and start watching it
+-- | Check given directory for unserved torrents and start watching it
 startServing :: Config -> IO ()
-startServing config@(Config baseDir _) = do
-  check baseDir
-  torrents <- find (depth ==? 0) (fileType ==? RegularFile &&? extension ==? ".torrent") baseDir
+startServing config = do
+  check $ baseDir config
+  torrents <- find (depth ==? 0) (fileType ==? RegularFile &&? extension ==? ".torrent") $ baseDir config
+  BSC.putStrLn $ BSC.unlines [ "Using config:", BSC.pack $ show config ]
   BSC.putStrLn $ BSC.concat
     [ "Found "
     , BSC.pack $ show $ length torrents
@@ -33,7 +34,7 @@ startServing config@(Config baseDir _) = do
                   $ \mgr -> do
     _ <- watchDir
       mgr
-      (FPCOS.decodeString baseDir)
+      (FPCOS.decodeString $ baseDir config)
       (isAdded `and` isTorrent)
       (\event -> do
         print event
@@ -53,28 +54,28 @@ and :: ActionPredicate -> ActionPredicate -> ActionPredicate
 a `and` b = \event -> a event && b event
 
 failedDir, doneDir :: FilePath -> FilePath
-failedDir baseDir = baseDir </> "failed"
-doneDir baseDir = baseDir </> "done"
+failedDir = (</> "failed")
+doneDir   = (</> "done")
 
 serve :: Config -> FilePath -> IO ()
-serve (Config baseDir transmissionConfig) torrent = do
+serve config torrent = do
     let filename = BSC.pack $ takeFileName torrent
-    torrentAccepted <- send transmissionConfig torrent
+    torrentAccepted <- send (transmission config) torrent
     case torrentAccepted of
       Just e -> do
         BSC.putStrLn $ BSC.concat [ filename, " failed (", e, ")" ]
-        moveTo (failedDir baseDir) torrent
+        moveTo (failedDir $ baseDir config) torrent
       Nothing -> do
         BSC.putStrLn $ BSC.concat [ filename, " done" ]
-        moveTo (doneDir baseDir) torrent
+        moveTo (doneDir $ baseDir config) torrent
 
 moveTo :: FilePath -> FilePath -> IO ()
 moveTo dir torrent = renameFile torrent (dir </> takeFileName torrent)
 
 check :: FilePath -> IO ()
-check baseDir = do
-  baseDirectoryExists <- doesDirectoryExist baseDir
-  unless baseDirectoryExists $ error $ "No such baseDir " ++ baseDir
-  forM_ [failedDir baseDir, doneDir baseDir] $ \d -> do
+check dir = do
+  baseDirectoryExists <- doesDirectoryExist dir
+  unless baseDirectoryExists $ error $ "No such baseDir " ++ dir
+  forM_ [failedDir dir, doneDir dir] $ \d -> do
     dirExists <- doesDirectoryExist d
     unless dirExists $ createDirectory d

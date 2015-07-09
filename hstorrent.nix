@@ -1,27 +1,24 @@
-{ haskellPackages ? (import <nixpkgs> {}).haskellPackages }:
-
-let pkgs = import <nixpkgs> {}; in
-
-haskellPackages.cabal.mkDerivation (self: {
+{ mkDerivation, base, bencoding, binary, bytestring, data-default
+, directory, fetchgit, filepath, hspec, hspec-contrib, HUnit, lens
+, QuickCheck, quickcheck-instances, stdenv
+}:
+mkDerivation {
   pname = "hstorrent";
   version = "0.1.0.0";
-  src = pkgs.fetchgit {
+  src = fetchgit {
     url = "https://github.com/hstorrent/hstorrent";
     sha256 = "a35099d1d65007d1b97fac2353aac876ed638a4c6d0aaeed1ecff8b2762426ee";
     rev = "3a8887aaeb7e6239685c0ad5fcf370156c840d25";
-    fetchSubmodules = false;
   };
-  buildDepends = with haskellPackages; [
-    bencoding binary dataDefault lens QuickCheck quickcheckInstances
+  buildDepends = [
+    base bencoding binary bytestring data-default lens QuickCheck
+    quickcheck-instances
   ];
-  testDepends = with haskellPackages; [
-    bencoding binary dataDefault filepath hspec hspecContrib HUnit lens QuickCheck
-    quickcheckInstances
+  testDepends = [
+    base bencoding binary bytestring data-default directory filepath
+    hspec hspec-contrib HUnit lens QuickCheck quickcheck-instances
   ];
-  meta = {
-    homepage = "https://github.com/hstorrent/hstorrent";
-    description = "BitTorrent library in Haskell";
-    license = self.stdenv.lib.licenses.bsd3;
-    platforms = self.ghc.meta.platforms;
-  };
-})
+  homepage = "https://github.com/hstorrent/hstorrent";
+  description = "BitTorrent library in Haskell";
+  license = stdenv.lib.licenses.bsd3;
+}
