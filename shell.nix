@@ -9,7 +9,7 @@
 in
   pkgs.stdenv.mkDerivation rec {
     name = pkg.pname;
-    buildInputs = [ ghc h.cabal-install hdevtools ] ++ pkg.env.buildInputs;
+    buildInputs = [ ghc h.cabal-install hdevtools pkgs.darwin.apple_sdk.frameworks.Cocoa ] ++ pkg.env.buildInputs;
     shellHook = ''
       ${pkg.env.shellHook}
       export IN_WHICH_NIX_SHELL=${name}
