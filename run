@@ -1,1 +1,1 @@
-nix-shell -p 'haskellPackages.callPackage ./default.nix {}' --run 'transmission-servant'
+nix-shell --run 'cabal build && ./dist/build/transmission-servant/transmission-servant'

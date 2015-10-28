@@ -18,7 +18,6 @@ startServing :: Config -> IO ()
 startServing config = do
   check $ baseDir config
   torrents <- find (depth ==? 0) (fileType ==? RegularFile &&? extension ==? ".torrent") $ baseDir config
-  BSC.putStrLn $ BSC.unlines [ "Using config:", BSC.pack $ show config ]
   BSC.putStrLn $ BSC.concat
     [ "Found "
     , BSC.pack $ show $ length torrents

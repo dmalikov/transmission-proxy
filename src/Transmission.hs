@@ -32,6 +32,5 @@ send config torrentFilePath = do
         let argsWithCred = case auth config of
                              Just (Credentials u p) -> args ++ [ "--auth=" ++ u ++ ":" ++ p ]
                              Nothing -> args
-        print argsWithCred
         callProcess "transmission-remote" argsWithCred
         return Nothing
