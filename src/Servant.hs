@@ -1,12 +1,10 @@
 {-# LANGUAGE OverloadedStrings #-}
 module Servant (startServing) where
 
-import           Control.Concurrent        (threadDelay)
+import           Control.Concurrent    (threadDelay)
 import           Control.Monad
-import qualified Data.ByteString.Char8     as BSC
-import qualified Filesystem.Path           as FSP
-import qualified Filesystem.Path.CurrentOS as FPCOS
-import           Prelude                   hiding (and)
+import qualified Data.ByteString.Char8 as BSC
+import           Prelude               hiding (and)
 import           System.Directory
 import           System.FilePath
 import           System.FilePath.Find
@@ -34,11 +32,11 @@ startServing config = do
                   $ \mgr -> do
     _ <- watchDir
       mgr
-      (FPCOS.decodeString $ baseDir config)
+      (baseDir config)
       (isAdded `and` isTorrent)
       (\event -> do
         print event
-        serve config $ FPCOS.encodeString $ eventPath event)
+        serve config $ eventPath event)
     forever $ threadDelay maxBound
 
 -- bunch of local helpers
@@ -48,7 +46,7 @@ isAdded (Added _ _) = True
 isAdded          _  = False
 
 isTorrent :: ActionPredicate
-isTorrent event = FSP.extension (eventPath event) == Just "torrent"
+isTorrent event = takeExtension (eventPath event) == ".torrent"
 
 and :: ActionPredicate -> ActionPredicate -> ActionPredicate
 a `and` b = \event -> a event && b event

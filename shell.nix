@@ -1,8 +1,8 @@
-{ nixpkgs ? import <nixpkgs> {}, compiler ? "ghc7101" }: let
+{ nixpkgs ? import <nixpkgs> {}, compiler ? "ghc7102" }: let
   inherit (nixpkgs) pkgs;
   h = pkgs.haskell.packages.${compiler};
   ghc = h.ghcWithPackages(ps: [
-    ps.hdevtools ps.stylish-haskell ps.hasktags
+    ps.stylish-haskell ps.hasktags ps.cabal2nix
   ]);
   hdevtools = pkgs.haskell.packages.${compiler}.callPackage ./hdevtools.nix { };
   pkg = (import ./default.nix { inherit nixpkgs compiler; });

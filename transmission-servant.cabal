@@ -9,9 +9,7 @@ category:            System
 build-type:          Simple
 extra-source-files:  README
 cabal-version:       >= 1.10
-description:         Script serving torrents from a given directory and sending them to remote transmission client source-repository head
-  type:     git
-  location: Private
+description:         Watching a given directory for a new torrent files and sending them to remote transmission client
 
 executable transmission-servant
   main-is:
@@ -36,7 +34,6 @@ executable transmission-servant
     , lens
     , network-uri
     , process
-    , system-filepath
   hs-source-dirs:
     src
   default-language:
@@ -44,3 +41,4 @@ executable transmission-servant
   ghc-options:
     -Wall
     -Werror
+    -O2
