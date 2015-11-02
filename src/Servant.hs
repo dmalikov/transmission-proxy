@@ -24,9 +24,9 @@ startServing config = do
     , " torrents"
     ]
   forM_ torrents $ serve config
-  withManagerConf WatchConfig { confPollInterval = 1000000
-                              , confDebounce = DebounceDefault
-                              , confUsePolling = False
+  withManagerConf WatchConfig { confDebounce     = Debounce 1000
+                              , confUsePolling   = False
+                              , confPollInterval = 1 -- doesn't matter
                               }
                   $ \mgr -> do
     _ <- watchDir
@@ -36,7 +36,7 @@ startServing config = do
       (\event -> do
         print event
         serve config $ eventPath event)
-    forever $ threadDelay maxBound
+    forever $ threadDelay 1000000
 
 -- bunch of local helpers
 
