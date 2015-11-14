@@ -1,3 +1,4 @@
+{-# LANGUAGE LambdaCase        #-}
 {-# LANGUAGE OverloadedStrings #-}
 module Servant (startServing) where
 
@@ -9,6 +10,7 @@ import           System.Directory
 import           System.FilePath
 import           System.FilePath.Find
 import           System.FSNotify
+import           System.Log.FastLogger hiding (check)
 
 import           Config
 import           Transmission
@@ -17,13 +19,10 @@ import           Transmission
 startServing :: Config -> IO ()
 startServing config = do
   check $ baseDir config
+  loggerSet <- newStdoutLoggerSet 1
   torrents <- find (depth ==? 0) (fileType ==? RegularFile &&? extension ==? ".torrent") $ baseDir config
-  BSC.putStrLn $ BSC.concat
-    [ "Found "
-    , BSC.pack $ show $ length torrents
-    , " torrents"
-    ]
-  forM_ torrents $ serve config
+  pushLogStrLn loggerSet (toLogStr ("Found " ++ (show $ length torrents) ++ " torrents"))
+  forM_ torrents $ serve loggerSet config
   withManagerConf WatchConfig { confDebounce     = Debounce 1000
                               , confUsePolling   = False
                               , confPollInterval = 1 -- doesn't matter
@@ -34,8 +33,8 @@ startServing config = do
       (baseDir config)
       (isAdded `and` isTorrent)
       (\event -> do
-        print event
-        serve config $ eventPath event)
+        pushLogStrLn loggerSet (toLogStr (show event))
+        serve loggerSet config $ eventPath event)
     forever $ threadDelay 1000000
 
 -- bunch of local helpers
@@ -54,17 +53,16 @@ failedDir, doneDir :: FilePath -> FilePath
 failedDir = (</> "failed")
 doneDir   = (</> "done")
 
-serve :: Config -> FilePath -> IO ()
-serve config torrent = do
-    let filename = BSC.pack $ takeFileName torrent
-    torrentAccepted <- send (transmission config) torrent
-    case torrentAccepted of
-      Just e -> do
-        BSC.putStrLn $ BSC.concat [ filename, " failed (", e, ")" ]
-        moveTo (failedDir $ baseDir config) torrent
-      Nothing -> do
-        BSC.putStrLn $ BSC.concat [ filename, " done" ]
-        moveTo (doneDir $ baseDir config) torrent
+serve :: LoggerSet -> Config -> FilePath -> IO ()
+serve loggerSet config torrent = do
+  let filename = takeFileName torrent
+  send (transmission config) torrent >>= \case
+    Just e -> do
+      pushLogStrLn loggerSet (toLogStr (filename ++ " failed (" ++ BSC.unpack e ++ ")"))
+      moveTo (failedDir $ baseDir config) torrent
+    Nothing -> do
+      pushLogStrLn loggerSet (toLogStr (filename ++ " done"))
+      moveTo (doneDir $ baseDir config) torrent
 
 moveTo :: FilePath -> FilePath -> IO ()
 moveTo dir torrent = renameFile torrent (dir </> takeFileName torrent)

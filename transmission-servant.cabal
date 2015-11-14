@@ -27,6 +27,7 @@ executable transmission-servant
     , bytestring
     , containers
     , directory
+    , fast-logger
     , filemanip
     , filepath
     , fsnotify
