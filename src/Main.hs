@@ -1,5 +1,5 @@
 import           Config
-import           Servant
+import           Proxy
 
 main :: IO ()
 main = startServing =<< readConfig

@@ -15,9 +15,9 @@ import           System.Directory           (doesFileExist, getHomeDirectory)
 import           System.FilePath            ((</>))
 
 
--- | Servant configuration
+-- | Configuration
 data Config = Config
-  { baseDir      :: FilePath -- directory with torrents servant will serve
+  { baseDir      :: FilePath -- directory with torrents that transmission-proxy will serve
   , transmission :: TransmissionConfig -- transmission configuration
   } deriving (Eq, Show)
 
@@ -40,7 +40,7 @@ $(deriveJSON defaultOptions ''Credentials)
 
 readConfig :: IO Config
 readConfig = do
-  configFilePath <- (</> ".servantrc") <$> getHomeDirectory
+  configFilePath <- (</> ".transmission.proxy.rc") <$> getHomeDirectory
   doesFileExist configFilePath >>= \exist -> unless exist $ error $ configFilePath ++ ": No such file"
   decode <$> BSC.readFile configFilePath >>= \case
     Just config -> return config

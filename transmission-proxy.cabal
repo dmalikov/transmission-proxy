@@ -1,4 +1,4 @@
-name:                transmission-servant
+name:                transmission-proxy
 version:             0.1.0.0
 synopsis:            Sending torrents to the remote transmission client
 license:             MIT
@@ -7,18 +7,18 @@ author:              Dmitry Malikov
 maintainer:          malikov.d.y@gmail.com
 category:            System
 build-type:          Simple
-extra-source-files:  README
+extra-source-files:  README.md
 cabal-version:       >= 1.10
-description:         Watching a given directory for a new torrent files and sending them to remote transmission client
+description:         Watching a given directory for a new torrent files and sending them to the remote transmission client
 
-executable transmission-servant
+executable transmission-proxy
   main-is:
     Main.hs
   other-extensions:
     OverloadedStrings, ScopedTypeVariables
   other-modules:
     Config
-    Servant
+    Proxy
     Transmission
   build-depends:
       aeson

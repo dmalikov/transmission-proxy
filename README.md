@@ -1,17 +1,14 @@
-# transmission-servant
+# transmission-proxy
 
-Simple script for sending huge amounts of torrent files to a remote transmission server with ability to set location directory according to a tracker name.
+Simple script for sending torrent files to a remote transmission server with ability to set location directory according to a tracker name.
 
-`transmission-servant` just watches given directory for a new torrent file, lookups for a directory name based on a tracker name and calls `transmission-remote` with a necessary `--download-dir` argument.
+`transmission-proxy` just watches given directory for a new torrent file, lookups for a directory name based on a tracker name and calls `transmission-remote` with a necessary `--download-dir` argument.
 
 Yep, just that. Nothing more.
 
-**Q**:* well wait, who cares about different directories for a different trackers?*
-**A**:* you cannot have one torrent pointing at 2 different trackers in transmission*
-
 ## Usage
 
-Create a `~/.servantrc` configuration file like:
+Create a `~/.transmission.proxy.rc` configuration file like:
 
 ```
 {
@@ -20,8 +17,8 @@ Create a `~/.servantrc` configuration file like:
     "host":"<server hostname or IP adress with transmission>",
     "downloadDirPrefix":"<directory prefix where data will be downloaded to>",
     "auth":{
-      "username":"<username if necessary>",
-      "password":"<password if necessary>"
+      "username":"<username if needed>",
+      "password":"<password if needed>"
     },
     "trackers":{
       "please.passthepopcorn.me":"ptp",
@@ -34,5 +31,5 @@ Create a `~/.servantrc` configuration file like:
 ```
 
 ```
-$> nix-shell -p 'haskellPackages.callPackage ./default.nix {}' --run 'transmission-servant'
+$> stack exec transmission-proxy
 ```

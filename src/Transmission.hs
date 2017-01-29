@@ -27,10 +27,10 @@ send config torrentFilePath = do
     Right uri -> handle (\(SomeException e) -> return $ Just $ BSC.pack $ show e) $ do
         let args = [ host config
                    , "--add",  torrentFilePath
-                   , "--download-dir", (downloadDirPrefix config) </> (fromMaybe "misc" $ flip Map.lookup (trackers config) =<< uriRegName <$> (uriAuthority =<< parseURI (BSC.unpack uri)))
+                   , "--download-dir", downloadDirPrefix config </> fromMaybe "misc" (flip Map.lookup (trackers config) =<< uriRegName <$> (uriAuthority =<< parseURI (BSC.unpack uri)))
                    ]
         let argsWithCred = case auth config of
                              Just (Credentials u p) -> args ++ [ "--auth=" ++ u ++ ":" ++ p ]
-                             Nothing -> args
+                             Nothing                -> args
         callProcess "transmission-remote" argsWithCred
         return Nothing

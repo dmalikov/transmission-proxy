@@ -1,6 +1,6 @@
 {-# LANGUAGE LambdaCase        #-}
 {-# LANGUAGE OverloadedStrings #-}
-module Servant (startServing) where
+module Proxy (startServing) where
 
 import           Control.Concurrent    (threadDelay)
 import           Control.Monad
@@ -21,7 +21,7 @@ startServing config = do
   check $ baseDir config
   loggerSet <- newStdoutLoggerSet 1
   torrents <- find (depth ==? 0) (fileType ==? RegularFile &&? extension ==? ".torrent") $ baseDir config
-  pushLogStrLn loggerSet (toLogStr ("Found " ++ (show $ length torrents) ++ " torrents"))
+  pushLogStrLn loggerSet (toLogStr ("Found " ++ show (length torrents) ++ " torrents"))
   forM_ torrents $ serve loggerSet config
   withManagerConf WatchConfig { confDebounce     = Debounce 1000
                               , confUsePolling   = False
