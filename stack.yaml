@@ -1,4 +1,4 @@
-resolver: lts-7.7
+resolver: lts-8.5
 
 flags: {}
 extra-package-dbs: []
@@ -11,3 +11,6 @@ packages:
     - location:
         git: https://github.com/dmalikov/bencoding.git
         commit: c1066e17be04f219dd84c372cf357a34f4c6724e
+
+extra-deps:
+  - aeson-1.1.1.0

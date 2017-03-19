@@ -11,6 +11,10 @@ extra-source-files:  README.md
 cabal-version:       >= 1.10
 description:         Watching a given directory for a new torrent files and sending them to the remote transmission client
 
+source-repository head
+    type:     git
+    location: https://github.com/dmalikov/transmission-proxy
+
 executable transmission-proxy
   main-is:
     Main.hs
@@ -21,8 +25,9 @@ executable transmission-proxy
     Proxy
     Transmission
   build-depends:
-      aeson
+      aeson > 1.1
     , base >= 4.8 && < 5
+    , base64-bytestring >= 1.0
     , bencoding
     , bytestring
     , containers
@@ -32,6 +37,9 @@ executable transmission-proxy
     , filepath
     , fsnotify
     , hstorrent
+    , http-client >= 0.5
+    , http-client-tls >= 0.3.4
+    , http-types >= 0.9.1
     , lens
     , network-uri
     , process
@@ -41,5 +49,3 @@ executable transmission-proxy
     Haskell2010
   ghc-options:
     -Wall
-    -Werror
-    -O2

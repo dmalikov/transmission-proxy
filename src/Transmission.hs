@@ -4,33 +4,73 @@ module Transmission
   ( send
   ) where
 
-import           Control.Exception
-import           Control.Lens
-import           Data.BEncode
+import           Control.Lens                    hiding ((.=))
+import           Data.Aeson
+import qualified Data.BEncode                    as BT
 import qualified Data.ByteString                 as BS
+import qualified Data.ByteString.Base64          as B64
 import qualified Data.ByteString.Char8           as BSC
+import qualified Data.ByteString.Lazy            as BSL
 import qualified Data.Map                        as Map
-import           Data.Maybe                      (fromMaybe)
+import           Data.Maybe                      (fromMaybe, listToMaybe)
 import           Network.HsTorrent.TorrentParser
+import           Network.HTTP.Client
+import           Network.HTTP.Client.TLS
+import           Network.HTTP.Types.Header
+import           Network.HTTP.Types.Status
 import           Network.URI
 import           System.FilePath                 ((</>))
-import           System.Process
 
-import           Config
+import qualified Config                          as C
 
--- | Send request with given torrent to remove transmission client, return Maybe error
-send :: TransmissionConfig -> FilePath -> IO (Maybe BSC.ByteString)
+send :: C.TransmissionConfig -> FilePath -> IO (Maybe BS.ByteString)
 send config torrentFilePath = do
   torrent <- BS.readFile torrentFilePath
-  case view tAnnounce <$> decode torrent of
-    Left e -> return $ Just $ BSC.pack e
-    Right uri -> handle (\(SomeException e) -> return $ Just $ BSC.pack $ show e) $ do
-        let args = [ host config
-                   , "--add",  torrentFilePath
-                   , "--download-dir", downloadDirPrefix config </> fromMaybe "misc" (flip Map.lookup (trackers config) =<< uriRegName <$> (uriAuthority =<< parseURI (BSC.unpack uri)))
-                   ]
-        let argsWithCred = case auth config of
-                             Just (Credentials u p) -> args ++ [ "--auth=" ++ u ++ ":" ++ p ]
-                             Nothing                -> args
-        callProcess "transmission-remote" argsWithCred
-        return Nothing
+  case BT.decode torrent of
+    Left e -> error e
+    Right metainfo -> do
+      manager <- newManager tlsManagerSettings
+      initRequest <- parseRequest (C.host config ++ "/rpc/")
+      let headers :: [Header] = case C.auth config of
+                                  Just (C.Credentials u p) -> [ ("Authorization", "Basic " `BS.append` B64.encode (BS.concat [BSC.pack u, ":", BSC.pack p] )) ]
+                                  Nothing                  -> []
+      let ta = TorrentAdd
+                 { _downloadDir = C.downloadDirPrefix config </> fromMaybe "misc" (flip Map.lookup (C.trackers config) =<< uriRegName <$> (uriAuthority =<< parseURI (BSC.unpack (view tAnnounce metainfo))))
+                 , _torrent = B64.encode torrent
+                 }
+      let request = initRequest
+                        { method = "POST"
+                        , requestHeaders = headers
+                        , requestBody = (RequestBodyBS . BSL.toStrict . encode) ta
+                        }
+      response <- httpLbs request manager
+      finalResponse <-
+        case getFirst sessionIdHeader (responseHeaders response) of
+          Just sessionId ->
+            let requestWithSessionId = request { requestHeaders = (sessionIdHeader, sessionId) : headers }
+            in  httpLbs requestWithSessionId manager
+          Nothing -> return response
+      if responseStatus finalResponse == ok200
+        then return Nothing
+        else (return . Just . statusMessage . responseStatus) finalResponse
+
+sessionIdHeader :: HeaderName
+sessionIdHeader = "X-Transmission-Session-Id"
+
+getFirst :: Eq a => a -> [(a,b)] -> Maybe b
+getFirst x = listToMaybe . map snd . filter ((== x) . fst)
+
+data TorrentAdd = TorrentAdd {
+    _downloadDir :: FilePath,
+    _torrent     :: BS.ByteString
+}
+
+instance ToJSON TorrentAdd where
+  toJSON (TorrentAdd downloadDir torrent) =
+    object [ "arguments" .=
+             object [ "download-dir" .= downloadDir
+                    , "metainfo" .= BSC.unpack torrent
+                    ]
+           , "method" .= ("torrent-add" :: String)
+           , "tag" .= (8 :: Int)
+           ]
