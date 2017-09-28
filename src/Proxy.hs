@@ -2,23 +2,23 @@
 {-# LANGUAGE OverloadedStrings #-}
 module Proxy (startServing) where
 
-import           Control.Concurrent    (threadDelay)
-import           Control.Monad
+import Control.Concurrent (threadDelay)
+import Control.Monad
 import qualified Data.ByteString.Char8 as BSC
-import           Prelude               hiding (and)
-import           System.Directory
-import           System.FilePath
-import           System.FilePath.Find
-import           System.FSNotify
-import           System.Log.FastLogger hiding (check)
+import Prelude hiding (and)
+import System.Directory
+import System.FilePath
+import System.FilePath.Find
+import System.FSNotify
+import System.Log.FastLogger hiding (check)
 
-import           Config
-import           Transmission
+import Config
+import Transmission
 
 -- | Check given directory for unserved torrents and start watching it
 startServing :: Config -> IO ()
 startServing config = do
-  check $ baseDir config
+  check (baseDir config)
   loggerSet <- newStdoutLoggerSet 1
   torrents <- find (depth ==? 0) (fileType ==? RegularFile &&? extension ==? ".torrent") $ baseDir config
   pushLogStrLn loggerSet (toLogStr ("Found " ++ show (length torrents) ++ " torrents"))

@@ -6,13 +6,13 @@ module Config
   , Config(..), Credentials(..), TransmissionConfig(..)
   ) where
 
-import           Control.Monad
-import           Data.Aeson
-import           Data.Aeson.TH
+import Control.Monad
+import Data.Aeson
+import Data.Aeson.TH
 import qualified Data.ByteString.Lazy.Char8 as BSC
-import           Data.Map
-import           System.Directory           (doesFileExist, getHomeDirectory)
-import           System.FilePath            ((</>))
+import Data.Map
+import System.Directory (doesFileExist, getHomeDirectory)
+import System.FilePath ((</>))
 
 
 -- | Configuration

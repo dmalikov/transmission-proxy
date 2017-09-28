@@ -4,30 +4,30 @@ module Transmission
   ( send
   ) where
 
-import           Control.Lens                    hiding ((.=))
-import           Data.Aeson
-import qualified Data.BEncode                    as BT
-import qualified Data.ByteString                 as BS
-import qualified Data.ByteString.Base64          as B64
-import qualified Data.ByteString.Char8           as BSC
-import qualified Data.ByteString.Lazy            as BSL
-import qualified Data.Map                        as Map
-import           Data.Maybe                      (fromMaybe, listToMaybe)
-import           Network.HsTorrent.TorrentParser
-import           Network.HTTP.Client
-import           Network.HTTP.Client.TLS
-import           Network.HTTP.Types.Header
-import           Network.HTTP.Types.Status
-import           Network.URI
-import           System.FilePath                 ((</>))
+import Control.Lens hiding ((.=))
+import Data.Aeson
+import qualified Data.BEncode as BT
+import qualified Data.ByteString as BS
+import qualified Data.ByteString.Base64 as B64
+import qualified Data.ByteString.Char8 as BSC
+import qualified Data.ByteString.Lazy as BSL
+import qualified Data.Map as Map
+import Data.Maybe (fromMaybe, listToMaybe)
+import Network.HsTorrent.TorrentParser
+import Network.HTTP.Client
+import Network.HTTP.Client.TLS
+import Network.HTTP.Types.Header
+import Network.HTTP.Types.Status
+import Network.URI
+import System.FilePath ((</>))
 
-import qualified Config                          as C
+import qualified Config as C
 
 send :: C.TransmissionConfig -> FilePath -> IO (Maybe BS.ByteString)
 send config torrentFilePath = do
   torrent <- BS.readFile torrentFilePath
   case BT.decode torrent of
-    Left e -> error e
+    Left e -> return $ Just $ BSC.pack e
     Right metainfo -> do
       manager <- newManager tlsManagerSettings
       initRequest <- parseRequest (C.host config ++ "/rpc/")
