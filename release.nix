@@ -7,14 +7,9 @@ let
         packages = pkgs.haskell.packages // {
           "${compiler}" = pkgs.haskell.packages."${compiler}".override {
             overrides = haskellPackagesNew: haskellPackagesOld: rec {
-              # optparse-applicative =
-              #   pkgs.haskell.lib.addBuildDepend
-              #     (haskellPackagesNew.callPackage ./optparse-applicative-2.nix { })
-              #     haskellPackagesNew.semigroups;
-
-              transmission-proxy = haskellPackagesNew.callPackage .styx/transmission-proxy.nix { };
-              bencoding = haskellPackagesNew.callPackage .styx/bencoding.nix { };
-              hstorrent = haskellPackagesNew.callPackage .styx/hstorrent.nix { };
+              bencoding = haskellPackagesNew.callPackage ./bencoding.nix { };
+              tp = haskellPackagesNew.callPackage ./default.nix { };
+              hstorrent = haskellPackagesNew.callPackage ./hstorrent.nix { };
             };
           };
         };
@@ -25,5 +20,5 @@ let
   pkgs = import <nixpkgs> { inherit config; };
 
 in
-  { transmission-proxy = pkgs.haskell.packages.${compiler}.transmission-proxy;
+  { project = pkgs.haskell.packages.${compiler}.tp;
   }
