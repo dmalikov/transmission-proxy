@@ -1,4 +1,5 @@
 dist
-result
+dist-newstyle
+.ghc.environment*
 tags
-.stack-work/
+.stack-work

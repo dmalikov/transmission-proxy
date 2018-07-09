@@ -1,1 +1,1 @@
-(import ./release.nix { compiler="ghc822"; } ).project.env
+(import ./release.nix { compiler="ghc843"; } ).project.env

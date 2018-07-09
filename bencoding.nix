@@ -7,8 +7,8 @@ mkDerivation {
   version = "0.4.3.0";
   src = fetchgit {
     url = "https://github.com/dmalikov/bencoding";
-    sha256 = "0qx4dh80cb44hsxrg1kryrqrvijx6dvypard9zliscdr6iishh4k";
-    rev = "c1066e17be04f219dd84c372cf357a34f4c6724e";
+    sha256 = "1hps8k2g98yljfckw9s9xwwykmbq3jh1i1whdwzv34cxkid1rzc4";
+    rev = "59b6159d964d395c2992882b2e249f330655bd41";
   };
   libraryHaskellDepends = [
     attoparsec base bytestring deepseq ghc-prim integer-gmp mtl pretty

@@ -1,4 +1,4 @@
-{ compiler ? "ghc822" }:
+{ compiler }:
 
 let
   config = {
@@ -7,9 +7,10 @@ let
         packages = pkgs.haskell.packages // {
           "${compiler}" = pkgs.haskell.packages."${compiler}".override {
             overrides = haskellPackagesNew: haskellPackagesOld: rec {
-              bencoding = haskellPackagesNew.callPackage ./bencoding.nix { };
+              bencoding = pkgs.haskell.lib.doJailbreak (haskellPackagesNew.callPackage ./bencoding.nix { });
               tp = haskellPackagesNew.callPackage ./default.nix { };
-              hstorrent = haskellPackagesNew.callPackage ./hstorrent.nix { };
+              hstorrent = pkgs.haskell.lib.doJailbreak (haskellPackagesNew.callPackage ./hstorrent.nix { });
+              hspec-contrib = haskellPackagesNew.callPackage ./hspec-contrib.nix { };
             };
           };
         };
@@ -22,3 +23,4 @@ let
 in
   { project = pkgs.haskell.packages.${compiler}.tp;
   }
+
