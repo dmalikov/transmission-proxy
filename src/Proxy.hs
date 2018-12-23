@@ -40,8 +40,8 @@ startServing config = do
 -- bunch of local helpers
 
 isAdded :: ActionPredicate
-isAdded (Added _ _) = True
-isAdded          _  = False
+isAdded (Added _ _ _) = True
+isAdded            _  = False
 
 isTorrent :: ActionPredicate
 isTorrent event = takeExtension (eventPath event) == ".torrent"
