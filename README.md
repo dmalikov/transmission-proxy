@@ -1,3 +1,5 @@
+[![Build Status](http://img.shields.io/travis/dmalikov/transmission-proxy/master.svg?style=flat-square)](http://travis-ci.org/dmalikov/transmission-proxy)
+
 # transmission-proxy
 
 Simple script for sending torrent files to a remote transmission server with ability to set location directory according to a tracker name.
