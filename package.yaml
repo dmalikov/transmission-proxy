@@ -1,0 +1,42 @@
+name: transmission-proxy
+version: 0.1.0.0
+description: See README
+license: MIT
+license-file: LICENSE
+maintainer: Dmitry Malikov <malikov.d.y@gmail.com>
+
+ghc-options:
+  - -Wall
+  - -fhide-source-paths
+  - -Wcompat
+  - -Wincomplete-record-updates
+  - -Wincomplete-uni-patterns
+  - -Wredundant-constraints
+  - -fdefer-typed-holes
+
+default-extensions:
+  - OverloadedStrings
+  - ScopedTypeVariables
+
+executable:
+  main: Main.hs
+  source-dirs: src
+  dependencies:
+    - base >= 4.8
+    - aeson > 1.1
+    - base64-bytestring >= 1.0
+    - bencoding
+    - bytestring
+    - containers
+    - directory
+    - fast-logger
+    - filemanip
+    - filepath
+    - fsnotify
+    - hstorrent
+    - http-client >= 0.5
+    - http-client-tls >= 0.3.4
+    - http-types >= 0.9.1
+    - lens
+    - network-uri
+    - process

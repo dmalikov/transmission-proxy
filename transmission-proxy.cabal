@@ -1,33 +1,34 @@
-name:                transmission-proxy
-version:             0.1.0.0
-synopsis:            Sending torrents to the remote transmission client
-license:             MIT
-license-file:        LICENSE
-author:              Dmitry Malikov
-maintainer:          malikov.d.y@gmail.com
-category:            System
-build-type:          Simple
-extra-source-files:  README.md
-cabal-version:       >= 1.10
-description:         Watching a given directory for a new torrent files and sending them to the remote transmission client
+cabal-version: 1.12
 
-source-repository head
-    type:     git
-    location: https://github.com/dmalikov/transmission-proxy
+-- This file has been generated from package.yaml by hpack version 0.31.1.
+--
+-- see: https://github.com/sol/hpack
+--
+-- hash: 8a9d2db4492b7d88fb560599b5ab1700a748e24e2ef7162f50fe3795b67502f9
+
+name:           transmission-proxy
+version:        0.1.0.0
+description:    See README
+maintainer:     Dmitry Malikov <malikov.d.y@gmail.com>
+license:        MIT
+license-file:   LICENSE
+build-type:     Simple
 
 executable transmission-proxy
-  main-is:
-    Main.hs
-  other-extensions:
-    OverloadedStrings, ScopedTypeVariables
+  main-is: Main.hs
   other-modules:
-    Config
-    Proxy
-    Transmission
+      Config
+      Proxy
+      Transmission
+      Paths_transmission_proxy
+  hs-source-dirs:
+      src
+  default-extensions: OverloadedStrings ScopedTypeVariables
+  ghc-options: -Wall -fhide-source-paths -Wcompat -Wincomplete-record-updates -Wincomplete-uni-patterns -Wredundant-constraints -fdefer-typed-holes
   build-depends:
-      aeson > 1.1
-    , base >= 4.8 && < 5
-    , base64-bytestring >= 1.0
+      aeson >1.1
+    , base >=4.8
+    , base64-bytestring >=1.0
     , bencoding
     , bytestring
     , containers
@@ -37,15 +38,10 @@ executable transmission-proxy
     , filepath
     , fsnotify
     , hstorrent
-    , http-client >= 0.5
-    , http-client-tls >= 0.3.4
-    , http-types >= 0.9.1
+    , http-client >=0.5
+    , http-client-tls >=0.3.4
+    , http-types >=0.9.1
     , lens
     , network-uri
     , process
-  hs-source-dirs:
-    src
-  default-language:
-    Haskell2010
-  ghc-options:
-    -Wall
+  default-language: Haskell2010
