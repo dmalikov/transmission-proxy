@@ -1,16 +1,16 @@
-{-# LANGUAGE LambdaCase        #-}
-{-# LANGUAGE OverloadedStrings #-}
-module Proxy (startServing) where
+module Proxy
+  ( startServing
+  ) where
 
-import Control.Concurrent (threadDelay)
-import Control.Monad
+import           Control.Concurrent (threadDelay)
+import           Control.Monad
 import qualified Data.ByteString.Char8 as BSC
-import Prelude hiding (and)
-import System.Directory
-import System.FilePath
-import System.FilePath.Find
-import System.FSNotify
-import System.Log.FastLogger hiding (check)
+import           Prelude hiding (and)
+import           System.Directory
+import           System.FilePath
+import           System.FilePath.Find
+import           System.FSNotify
+import           System.Log.FastLogger hiding (check) -- TODO use logging package
 
 import Config
 import Transmission
@@ -23,11 +23,11 @@ startServing config = do
   torrents <- find (depth ==? 0) (fileType ==? RegularFile &&? extension ==? ".torrent") $ baseDir config
   pushLogStrLn loggerSet (toLogStr ("Found " ++ show (length torrents) ++ " torrents"))
   forM_ torrents $ serve loggerSet config
-  withManagerConf WatchConfig { confDebounce     = Debounce 1000
-                              , confUsePolling   = False
-                              , confPollInterval = 1 -- doesn't matter
-                              }
-                  $ \mgr -> do
+  withManagerConf WatchConfig
+    { confDebounce     = Debounce 1000
+    , confUsePolling   = False
+    , confPollInterval = 1 -- doesn't matter
+    } $ \mgr -> do
     _ <- watchDir
       mgr
       (baseDir config)
@@ -70,7 +70,7 @@ moveTo dir torrent = renameFile torrent (dir </> takeFileName torrent)
 check :: FilePath -> IO ()
 check dir = do
   baseDirectoryExists <- doesDirectoryExist dir
-  unless baseDirectoryExists $ error $ "No such baseDir " ++ dir
+  unless baseDirectoryExists $ error $ "No such baseDir " ++ dir -- TODO use 'die' instead of error
   forM_ [failedDir dir, doneDir dir] $ \d -> do
     dirExists <- doesDirectoryExist d
     unless dirExists $ createDirectory d

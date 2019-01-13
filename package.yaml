@@ -15,6 +15,7 @@ ghc-options:
   - -fdefer-typed-holes
 
 default-extensions:
+  - LambdaCase
   - OverloadedStrings
   - ScopedTypeVariables
 
@@ -40,3 +41,4 @@ executable:
     - lens
     - network-uri
     - process
+    - unordered-containers

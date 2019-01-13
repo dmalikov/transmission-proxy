@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 8a9d2db4492b7d88fb560599b5ab1700a748e24e2ef7162f50fe3795b67502f9
+-- hash: 5b83a02f750ffbe3d871b66a4ebbd4bac7baa561dd79e451fe6699cec743a6a5
 
 name:           transmission-proxy
 version:        0.1.0.0
@@ -23,7 +23,7 @@ executable transmission-proxy
       Paths_transmission_proxy
   hs-source-dirs:
       src
-  default-extensions: OverloadedStrings ScopedTypeVariables
+  default-extensions: LambdaCase OverloadedStrings ScopedTypeVariables
   ghc-options: -Wall -fhide-source-paths -Wcompat -Wincomplete-record-updates -Wincomplete-uni-patterns -Wredundant-constraints -fdefer-typed-holes
   build-depends:
       aeson >1.1
@@ -44,4 +44,5 @@ executable transmission-proxy
     , lens
     , network-uri
     , process
+    , unordered-containers
   default-language: Haskell2010
