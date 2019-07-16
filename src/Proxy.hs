@@ -2,15 +2,16 @@ module Proxy
   ( startServing
   ) where
 
-import           Control.Concurrent (threadDelay)
-import           Control.Monad
+import Control.Concurrent (threadDelay)
+import Control.Monad
+import Prelude hiding (and)
+import System.Directory
+import System.Exit (die)
+import System.FilePath
+import System.FilePath.Find
+import System.FSNotify
+import System.Log.FastLogger hiding (check) -- TODO use logging package
 import qualified Data.ByteString.Char8 as BSC
-import           Prelude hiding (and)
-import           System.Directory
-import           System.FilePath
-import           System.FilePath.Find
-import           System.FSNotify
-import           System.Log.FastLogger hiding (check) -- TODO use logging package
 
 import Config
 import Transmission
@@ -70,7 +71,7 @@ moveTo dir torrent = renameFile torrent (dir </> takeFileName torrent)
 check :: FilePath -> IO ()
 check dir = do
   baseDirectoryExists <- doesDirectoryExist dir
-  unless baseDirectoryExists $ error $ "No such baseDir " ++ dir -- TODO use 'die' instead of error
+  unless baseDirectoryExists $ die ("No such baseDir " ++ dir)
   forM_ [failedDir dir, doneDir dir] $ \d -> do
     dirExists <- doesDirectoryExist d
     unless dirExists $ createDirectory d

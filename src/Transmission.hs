@@ -4,22 +4,22 @@ module Transmission
   ( send
   ) where
 
-import           Control.Lens hiding ((.=))
-import           Data.Aeson
+import Control.Lens hiding ((.=))
+import Data.Aeson
+import Data.Maybe (fromMaybe, listToMaybe)
+import Network.HsTorrent.TorrentParser
+import Network.HTTP.Client
+import Network.HTTP.Client.TLS
+import Network.HTTP.Types.Header
+import Network.HTTP.Types.Status
+import Network.URI
+import System.FilePath ((</>))
 import qualified Data.BEncode as BT
 import qualified Data.ByteString as BS
 import qualified Data.ByteString.Base64 as B64
 import qualified Data.ByteString.Char8 as BSC
 import qualified Data.ByteString.Lazy as BSL
 import qualified Data.HashMap.Strict as HM
-import           Data.Maybe (fromMaybe, listToMaybe)
-import           Network.HsTorrent.TorrentParser
-import           Network.HTTP.Client
-import           Network.HTTP.Client.TLS
-import           Network.HTTP.Types.Header
-import           Network.HTTP.Types.Status
-import           Network.URI
-import           System.FilePath ((</>))
 
 import qualified Config as C
 
