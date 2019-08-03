@@ -1,16 +1,12 @@
-resolver: lts-13.0
+resolver: lts-13.28
 packages:
   - '.'
-  - location:
-      git: https://github.com/dmalikov/bencoding.git
-      commit: 59b6159d964d395c2992882b2e249f330655bd41
-    extra-dep: true
-  - location:
-      git: https://github.com/hstorrent/hstorrent.git
-      commit: 3a8887aaeb7e6239685c0ad5fcf370156c840d25
-    extra-dep: true
 allow-newer: true
 extra-deps:
   - hspec-contrib-0.5.0
+  - github: dmalikov/bencoding
+    commit: 59b6159d964d395c2992882b2e249f330655bd41
+  - github: hstorrent/hstorrent
+    commit: 3a8887aaeb7e6239685c0ad5fcf370156c840d25
 ghc-options:
   "$locals": -fhide-source-paths
